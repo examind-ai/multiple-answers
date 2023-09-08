@@ -2,20 +2,35 @@ import { useState } from 'react';
 
 type Option = { readonly key: string; readonly label: string };
 
+const NONE_OF_THE_ABOVE_OPTION: Option = {
+  key: 'NONE_OF_THE_ABOVE',
+  label: 'None of the above',
+};
+
 const options: ReadonlyArray<Option> = [
   { key: 'A', label: 'Venus' },
   { key: 'B', label: 'Newton' },
   { key: 'C', label: 'Mars' },
   { key: 'D', label: 'Sun' },
-  { key: 'NONE_OF_THE_ABOVE', label: 'None of the above' },
+  NONE_OF_THE_ABOVE_OPTION,
 ];
+
+const isNoneOfTheAbove = (option: Option) =>
+  option === NONE_OF_THE_ABOVE_OPTION;
+
+const excludeNoneOfTheAbove = (options: ReadonlyArray<Option>) =>
+  options.filter(option => !isNoneOfTheAbove(option));
 
 const MultipleAnswers = () => {
   const [selections, setSelections] = useState<Option[]>([]);
 
   const handleChange = (option: Option, checked: boolean) =>
     setSelections(prev =>
-      checked ? prev.concat(option) : prev.filter(o => o !== option),
+      checked
+        ? isNoneOfTheAbove(option)
+          ? [option]
+          : excludeNoneOfTheAbove(prev.concat(option))
+        : prev.filter(o => o !== option),
     );
 
   return (
